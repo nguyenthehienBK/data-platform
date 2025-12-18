@@ -1,1 +1,4 @@
 # Bổ sung các thư viện cần thiết để build/extend Airflow image
+dbt-core==1.10.16
+dbt-spark==1.9.3
+astronomer-cosmos==1.11.3
