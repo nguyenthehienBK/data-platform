@@ -208,3 +208,7 @@ __marimo__/
 
 # Airflow
 logs/
+airflow/config/airflow.cfg
+
+# Lakehouse
+data/
