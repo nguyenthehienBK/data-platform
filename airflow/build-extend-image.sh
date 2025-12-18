@@ -19,5 +19,5 @@ is_build_image=1
 
 if [ $is_build_image -eq 1 ];
 then
-  docker build --rm -t my-airflow:$version -f Dockerfile .
+  docker build --rm -t hiennt-airflow:$version -f Dockerfile .
 fi
