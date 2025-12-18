@@ -1,8 +1,8 @@
-# airflow-data-pipeline
+# data-pipeline
 ## Deploy Airflow Local
 - Create `.env` file and edit with your configs
     ```console
-    cd airflow-data-pipeline
+    cd data-pipeline
     cp .env.example .env
     vim .env
     ```
@@ -20,6 +20,6 @@
 
 - Add your packages to the `requirements.txt` file, then execute the following command:
     ```console
-    cd airflow-data-pipeline
+    cd data-pipeline
     sh build-extend-images.sh [version]
     ```
