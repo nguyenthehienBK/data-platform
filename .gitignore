@@ -212,3 +212,6 @@ airflow/config/airflow.cfg
 
 # Lakehouse
 data/
+
+# MacOS
+.DS_Store
