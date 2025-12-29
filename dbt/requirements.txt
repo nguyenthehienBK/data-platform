@@ -1,0 +1,4 @@
+dbt-core==1.10.16
+dbt-spark==1.9.3
+dbt-spark[session]
+dbt-spark[PyHive]

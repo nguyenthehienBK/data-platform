@@ -1,0 +1,5 @@
+models:
+  - name: stg_trips_table_cow
+    description: Staging table for test DBT
+
+
