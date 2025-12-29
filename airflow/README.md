@@ -20,6 +20,6 @@
 
 - Add your packages to the `requirements.txt` file, then execute the following command:
     ```console
-    cd data-platform
+    cd data-platform/airflow
     sh build-extend-images.sh [version]
     ```
