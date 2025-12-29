@@ -32,6 +32,10 @@ echo "Starting Spark History Server..."
 nohup "$SPARK_HOME"/sbin/start-history-server.sh &
 sleep 2
 
+echo "Starting Spark Thrift Server..."
+nohup "$SPARK_HOME"/sbin/start-thriftserver.sh &
+sleep 2
+
 PY4J_ZIP=$(ls "$SPARK_HOME"/python/lib/py4j*.zip)
 export PYTHONPATH="${SPARK_HOME}/python/:${PY4J_ZIP}"
 

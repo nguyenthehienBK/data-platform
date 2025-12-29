@@ -21,8 +21,11 @@ services:
     image: apachehudi/spark-hudi:latest
     container_name: spark-hudi
     depends_on:
-      - hive-metastore
-      - minio
+      hive-metastore:
+        condition: service_healthy # Waits for healthcheck to pass to success start spark thrift server
+      minio:
+        condition: service_started
+      
     ports:
       - "8888:8888"   # Jupyter
       - "4040:4040"   # Spark UI
@@ -30,6 +33,7 @@ services:
       - "8080:8080"   # Spark Master UI
       - "8081:8081"   # Spark Worker UI
       - "18080:18080" # Spark History Server UI
+      - "10000:10000" # Spark Thrift server
     volumes:
       - ./data/spark-events:/opt/spark/spark-events
     environment:
@@ -86,6 +90,11 @@ services:
       SERVICE_NAME: metastore
     ports:
       - "9083:9083"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/9083"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
     networks:
       - hudi-datalake
 
