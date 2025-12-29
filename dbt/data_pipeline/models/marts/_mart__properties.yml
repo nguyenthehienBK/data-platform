@@ -1,0 +1,15 @@
+models:
+  - name: trips_table_cow
+    description: Mart table for test DBT
+    config:
+      partition_by: city
+      file_format: hudi
+      tblproperties: 
+        type: cow
+        primaryKey: uuid
+        preCombineField: ts
+    columns:
+      - name: uuid
+        tests:
+          - not_null
+          
