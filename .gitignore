@@ -215,3 +215,6 @@ data/
 
 # MacOS
 .DS_Store
+
+# Docker
+docker-volume/
