@@ -36,6 +36,7 @@ services:
       - "10000:10000" # Spark Thrift server
     volumes:
       - ./data/spark-events:/opt/spark/spark-events
+      - ./notebooks:/opt/notebooks
     environment:
       - AWS_ACCESS_KEY_ID=admin
       - AWS_SECRET_ACCESS_KEY=password
@@ -87,7 +88,7 @@ services:
     container_name: hive-metastore
     command: /opt/hive/bin/hive --service metastore
     environment:
-      SERVICE_NAME: metastore
+      - SERVICE_NAME=metastore
     ports:
       - "9083:9083"
     healthcheck:
@@ -97,6 +98,23 @@ services:
       retries: 5
     networks:
       - hudi-datalake
+
+  trino:
+    image: trinodb/trino:latest
+    container_name: trino
+    depends_on:
+      hive-metastore:
+        condition: service_healthy # Waits for healthcheck to pass to success start spark thrift server
+      minio:
+        condition: service_started
+    ports:
+      - "28080:8080"
+    volumes:
+      - ./conf/trino:/etc/trino
+      - ./data/trino:/var/trino/data
+    networks:
+      - hudi-datalake
+
 
 networks:
   hudi-datalake:
