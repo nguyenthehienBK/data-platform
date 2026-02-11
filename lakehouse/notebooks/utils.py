@@ -15,9 +15,13 @@
 # limitations under the License.
 
 from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import StructType, ArrayType, StructField, StringType, IntegerType, DoubleType
+import re
 from IPython.display import display as display_html, HTML
 import boto3
 from urllib.parse import urlparse
+
 
 def get_spark_session(app_name="Hudi-Notebooks"):
     """
@@ -128,3 +132,38 @@ def display(df, num_rows=100):
     
     # Display the final HTML
     display_html(HTML(custom_css + html_table))
+
+
+
+# -----------------------------
+# CamelCase -> snake_case
+# -----------------------------
+def camel_to_snake(name: str) -> str:
+    if name.startswith("_") and name.lower() == "_id":
+        return "_id"
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+# -----------------------------
+# Recursive rename function
+# -----------------------------
+def rename_df_columns(df):
+    def rename_column(col_name, dtype):
+        if isinstance(dtype, StructType):
+            # Recursively handle struct
+            return F.struct(
+                *[rename_column(f.name, f.dataType).alias(camel_to_snake(f.name)) for f in dtype.fields]
+            ).alias(camel_to_snake(col_name))
+        elif isinstance(dtype, ArrayType) and isinstance(dtype.elementType, StructType):
+            # Handle array of structs
+            return F.transform(
+                F.col(col_name),
+                lambda x: F.struct(
+                    *[x.getField(f.name).alias(camel_to_snake(f.name)) for f in dtype.elementType.fields]
+                )
+            ).alias(camel_to_snake(col_name))
+        else:
+            # Normal column, use getField if needed
+            return F.col(col_name).alias(camel_to_snake(col_name))
+    
+    return df.select([rename_column(f.name, f.dataType) for f in df.schema.fields])
