@@ -1,6 +1,6 @@
 # Data Platform
 
-This repository contains a full local data platform.
+This repository contains an on-premise data platform.
 Each component has its own README inside its folder, use it for more detail.
 
 ## Quickstart
