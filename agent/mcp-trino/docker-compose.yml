@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  mcp-trino:
+    image: data-plat-form-mcp-trino:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-trino
+    ports:
+      - '48080:8080'
+    environment:
+      - TRINO_HOST=host.docker.internal
+      - TRINO_PORT=28080
+      - TRINO_USER=admin
+      # - TRINO_CATALOG=memory
+      # - TRINO_SCHEMA=default
+      - TRINO_SCHEME=http
+      - TRINO_SSL=false
+      - TRINO_ALLOW_WRITE_QUERIES=false
+      - MCP_TRANSPORT=http
+      - MCP_PORT=8080
+      - OAUTH_ENABLED=false
+      # - OAUTH_PROVIDER=hmac
+      # - JWT_SECRET=hien123
+
+      # - TRINO_ALLOWED_SCHEMAS=memory.analytics,memory.marts,memory.staging
