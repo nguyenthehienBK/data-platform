@@ -1,0 +1,20 @@
+<!-- <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+  <property>
+    <name>xasecure.audit.is.enabled</name>
+    <value>true</value>
+    <description>Boolean flag to specify if the plugin should generate access audit logs. Default: true</description>
+  </property>
+
+  <property>
+    <name>xasecure.audit.solr.is.enabled</name>
+    <value>false</value>
+    <description>Boolean flag to specify if audit logs should be stored in Solr. Default: false</description>
+  </property>
+
+  <property>
+    <name>xasecure.audit.solr.solr_url</name>
+    <value></value>
+    <description>URL to Solr deployment where the plugin should send access audits to</description>
+  </property>
+</configuration> -->
