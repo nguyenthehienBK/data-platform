@@ -1,0 +1,114 @@
+# version: '3.8'
+
+services:
+
+  broker:
+    image: confluentinc/cp-kafka:7.8.7
+    container_name: broker
+    hostname: broker
+    ports:
+      - "9092:9092"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:29092,PLAINTEXT_HOST://host.docker.internal:9092'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      # Cluster ID ngẫu nhiên cho KRaft
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    networks:
+      - kafka-network
+  
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.8.7
+    container_name: cp-schema-registry
+    depends_on:
+      - broker
+    ports:
+      - "18081:18081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:18081
+    networks:
+      - kafka-network
+
+  # kafka-ui:
+  #   image: provectuslabs/kafka-ui
+  #   container_name: kafka-ui
+  #   ports:
+  #     - "8080:8080"
+  #   restart: always
+  #   environment:
+  #     KAFKA_CLUSTERS_0_NAME: "kraft-cluster"
+  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:29092
+  #   depends_on:
+  #     - broker
+  #   networks:
+  #     - kafka-network
+
+  postgres:
+      image: postgres:16
+      hostname: postgres
+      container_name: postgres
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_DB: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+      command:
+        - "postgres"
+        - "-c"
+        - "wal_level=logical"
+      networks:
+        - kafka-network
+
+  debezium:
+    image: quay.io/debezium/connect:latest
+    container_name: debezium
+    depends_on:
+      - broker
+      - postgres
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: broker:29092
+      GROUP_ID: "1"
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      ENABLE_DEBEZIUM_SCRIPTING: "true"
+    networks:
+      - kafka-network
+
+  # debezium-ui:
+  #   image: quay.io/debezium/debezium-ui:latest
+  #   container_name: debezium-ui
+  #   depends_on: 
+  #     - debezium
+  #   ports:
+  #     - '8080:8080'
+  #   environment:
+  #     KAFKA_CONNECT_URIS: http://debezium:8083,http://localhost:8083
+  #   networks:
+  #     - kafka-network
+
+volumes:
+  debezium-postgresql:
+
+networks:
+  kafka-network:
+    driver: bridge
