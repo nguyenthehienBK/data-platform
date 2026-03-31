@@ -20,7 +20,7 @@ set -eux
 export HUDI_VERSION=1.0.2
 export HUDI_VERSION_TAG=${HUDI_VERSION}
 export SPARK_VERSION=3.5.7
-export HIVE_VERSION=3.1.3
+export HIVE_VERSION=4.0.0
 export HIVE_VERSION_TAG=${HIVE_VERSION}
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)

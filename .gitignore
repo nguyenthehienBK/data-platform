@@ -227,3 +227,6 @@ docker-volume/
 call_api/
 
 draft*
+
+# Agentic coding
+/.claude
