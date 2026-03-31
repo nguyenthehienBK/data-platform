@@ -38,7 +38,6 @@ def get_spark_session(app_name="Hudi-Notebooks"):
         .appName(app_name) \
 	    .config("spark.hadoop.fs.defaultFS", "s3a://warehouse") \
         .enableHiveSupport() \
-        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1") \
         .getOrCreate()
         
     spark_session.sparkContext.setLogLevel("ERROR")
