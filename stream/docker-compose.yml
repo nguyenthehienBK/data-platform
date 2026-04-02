@@ -58,7 +58,7 @@ services:
   #     - kafka-network
 
   postgres:
-      image: postgres:16
+      image: postgres:latest
       hostname: postgres
       container_name: postgres
       ports:
