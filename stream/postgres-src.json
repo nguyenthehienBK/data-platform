@@ -13,6 +13,8 @@
       "publication.name": "postgres_pub",
       "database.history.kafka.bootstrap.servers": "broker:9092",
       "database.history.kafka.topic": "schema-changes",
-      "topic.prefix": "dbserver1"
+      "topic.prefix": "cdc_postgres",
+      "snapshot.mode": "initial",
+      "table.include.list": "CRBT.charge_log,CRBT.sub_collection_log,CRBT.substate_log"
     }
   }
