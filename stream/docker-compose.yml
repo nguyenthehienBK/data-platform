@@ -28,34 +28,45 @@ services:
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
     networks:
       - kafka-network
-  
-  schema-registry:
-    image: confluentinc/cp-schema-registry:7.8.7
-    container_name: cp-schema-registry
-    depends_on:
-      - broker
-    ports:
-      - "18081:18081"
+
+  schema-registry-db:
+    image: postgres:latest
+    container_name: schema-registry-db
     environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:18081
+      POSTGRES_USER: apicurio-registry
+      POSTGRES_PASSWORD: password
     networks:
       - kafka-network
+  schema-registry:
+    image: apicurio/apicurio-registry:latest
+    container_name: schema-registry
+    depends_on:
+      - broker
+      - schema-registry-db
+    ports:
+      - 18081:8080
+    environment:
+      APICURIO_STORAGE_KIND: 'sql'
+      APICURIO_STORAGE_SQL_KIND: 'postgresql'
+      APICURIO_DATASOURCE_URL: 'jdbc:postgresql://schema-registry-db/apicurio-registry'
+      APICURIO_DATASOURCE_USERNAME: apicurio-registry
+      APICURIO_DATASOURCE_PASSWORD: password
+    networks:
+        - kafka-network
 
-  # kafka-ui:
-  #   image: provectuslabs/kafka-ui
-  #   container_name: kafka-ui
-  #   ports:
-  #     - "8080:8080"
-  #   restart: always
-  #   environment:
-  #     KAFKA_CLUSTERS_0_NAME: "kraft-cluster"
-  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:29092
-  #   depends_on:
-  #     - broker
-  #   networks:
-  #     - kafka-network
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "9090:8080"
+    restart: always
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "kraft-cluster"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:29092
+    depends_on:
+      - broker
+    networks:
+      - kafka-network
 
   postgres:
       image: postgres:latest
@@ -88,23 +99,23 @@ services:
       CONFIG_STORAGE_TOPIC: connect_configs
       OFFSET_STORAGE_TOPIC: connect_offsets
       STATUS_STORAGE_TOPIC: connect_statuses
-      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      ENABLE_DEBEZIUM_SCRIPTING: "true"
+      INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+
+      ENABLE_APICURIO_CONVERTERS: true
+      CONNECT_SCHEMA_NAME_ADJUSTMENT_MODE: avro
+
+      CONNECT_KEY_CONVERTER: io.apicurio.registry.utils.converter.AvroConverter
+      CONNECT_KEY_CONVERTER_APICURIO_REGISTRY_URL: http://schema-registry:8080/apis/registry/v2
+      CONNECT_KEY_CONVERTER_APICURIO_REGISTRY_AUTO-REGISTER: true
+      CONNECT_KEY_CONVERTER_APICURIO_REGISTRY_FIND-LATEST: true
+
+      CONNECT_VALUE_CONVERTER: io.apicurio.registry.utils.converter.AvroConverter
+      CONNECT_VALUE_CONVERTER_APICURIO_REGISTRY_URL: http://schema-registry:8080/apis/registry/v2
+      CONNECT_VALUE_CONVERTER_APICURIO_REGISTRY_AUTO-REGISTER: true
+      CONNECT_VALUE_CONVERTER_APICURIO_REGISTRY_FIND-LATEST: true
     networks:
       - kafka-network
-
-  # debezium-ui:
-  #   image: quay.io/debezium/debezium-ui:latest
-  #   container_name: debezium-ui
-  #   depends_on: 
-  #     - debezium
-  #   ports:
-  #     - '8080:8080'
-  #   environment:
-  #     KAFKA_CONNECT_URIS: http://debezium:8083,http://localhost:8083
-  #   networks:
-  #     - kafka-network
 
 volumes:
   debezium-postgresql:
