@@ -5,7 +5,7 @@ data_pipeline:
       type: spark
       method: thrift
       schema: warehouse
-      host: 192.168.47.51     
+      host: 192.168.45.114     
       port: 10000
       server_side_parameters:
         "spark.driver.memory": "4g"

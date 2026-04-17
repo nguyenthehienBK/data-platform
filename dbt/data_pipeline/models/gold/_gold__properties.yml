@@ -1,0 +1,9 @@
+models:
+  - name: gld_crbt_daily_charge_summary
+    description: Daily aggregation of CRBT charge events
+    config:
+      unique_key: _record_key
+      partition_by: _ingest_date
+      options:
+        type: cow
+        primaryKey: _record_key

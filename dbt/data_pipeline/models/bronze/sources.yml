@@ -1,0 +1,13 @@
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: postgres_public_orders
+        freshness:
+          warn_after: {count: 2, period: hour}
+          error_after: {count: 6, period: hour}
+        loaded_at_field: _kafka_ingest_ts
+      - name: pg_crbt_sub_collection_logs
+      - name: pg_crbt_substate_log
+      - name: pg_crbt_charge_log
+

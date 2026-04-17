@@ -1,0 +1,45 @@
+models:
+  - name: slv_orders
+    description: Cleansed orders from bronze.postgres_public_orders
+    config:
+      unique_key: id
+      partition_by: _ingest_date
+      options:
+        type: cow
+        primaryKey: id
+        preCombineField: _cdc_ts_ms
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: slv_crbt_charge_log
+    description: Cleansed CRBT charge log with normalized column names
+    config:
+      unique_key: _record_key
+      partition_by: _ingest_date
+      options:
+        type: cow
+        primaryKey: _record_key
+        preCombineField: _cdc_ts_ms
+
+  - name: slv_crbt_sub_collection_log
+    description: Cleansed CRBT sub collection log with normalized column names
+    config:
+      unique_key: _record_key
+      partition_by: _ingest_date
+      options:
+        type: cow
+        primaryKey: _record_key
+        preCombineField: _cdc_ts_ms
+
+  - name: slv_crbt_substate_log
+    description: Cleansed CRBT substate log with normalized column names
+    config:
+      unique_key: _record_key
+      partition_by: _ingest_date
+      options:
+        type: cow
+        primaryKey: _record_key
+        preCombineField: _cdc_ts_ms
