@@ -1,110 +1,88 @@
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one or more
-  contributor license agreements.  See the NOTICE file distributed with
-  this work for additional information regarding copyright ownership.
-  The ASF licenses this file to You under the Apache License, Version 2.0
-  (the "License"); you may not use this file except in compliance with
-  the License.  You may obtain a copy of the License at
+# Lakehouse — Spark + Hudi + MinIO + Hive Metastore + Trino
 
-       http://www.apache.org/licenses/LICENSE-2.0
+Docker Compose environment for data lake storage, processing, and querying.
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
+## Services
 
-# 🚀 Spark + Hudi + MinIO + Hive Metastore Docker Demo
+| Service | Description |
+|---------|-------------|
+| **spark-hudi** | Spark 3.5 with Hudi, JupyterLab, and Hadoop AWS |
+| **minio** | S3-compatible object storage (buckets: raw, bronze, silver, gold, warehouse) |
+| **hive-metastore** | Hive Metastore backed by **PostgreSQL** |
+| **postgres** | PostgreSQL instance for Hive Metastore persistence |
+| **trino** | SQL query engine over Hudi tables |
+| **mc** | MinIO client for bucket initialization |
 
-This project provides a ready-to-use Docker Compose environment for running Apache Spark with Hudi, Hive Metastore, and MinIO (S3-compatible storage) for data lake development and testing. JupyterLab is included for interactive development.
+## Quick Start
 
-![](Spark_Hudi.png)
-
-## 🛠️ Services
-
-- **spark-hudi**: Spark with Hudi and JupyterLab
-- **hive-metastore**: Hive Metastore (backed by Derby)
-- **minio**: S3-compatible object storage
-
-## 📂 Directory Structure
-
-- `Dockerfile.spark` / `Dockerfile.hive`: Custom Dockerfiles for Spark and Hive
-- `build.sh`: Build all Docker images
-- `run_spark_hudi.sh`: Start/stop/restart the stack
-- `conf/`: Configuration files for Spark, Hive, and Hudi
-- `notebooks/`: Jupyter notebooks (mounted in Spark container)
-- `data/`: Persistent data for MinIO, Spark event logs, etc.
-
-## ⚡ Quick Start
-
-### 1. Build Docker Images
-
-```sh
+```bash
+# Build images (first time)
 ./build.sh
-```
 
-### 2. Start the Environment
-
-```sh
+# Start all services
 ./run_spark_hudi.sh start
-```
 
-### 3. Stop the Environment
-
-```sh
+# Stop
 ./run_spark_hudi.sh stop
-```
 
-### 4. Restart the Environment
-
-```sh
+# Restart
 ./run_spark_hudi.sh restart
+
+# Clean up (removes volumes)
+docker compose down -v
 ```
 
-## 🌐 Accessing Services
+## Access
 
-- **JupyterLab** → [http://localhost:8888](http://localhost:8888)
-- **Spark UI** → [http://localhost:4040](http://localhost:4040)
-- **MinIO Console** → [http://localhost:9001](http://localhost:9001)
-  - User: `admin` 
-  - Password: `password`
-- **Hive Metastore (Thrift)** → thrift://localhost:9083
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| JupyterLab | http://localhost:8888 | — |
+| Spark UI | http://localhost:4040 | — |
+| MinIO Console | http://localhost:9001 | admin / password |
+| Trino | http://localhost:28080 | — |
 
-## ⚙️ Configuration
+## Directory Structure
 
-- Spark, Hive, and Hudi configs are in `conf/` and automatically copied into containers.
-- S3 access keys and endpoints are set for MinIO and referenced in Spark/Hive configs.
-
-## 📒 Example: Using JupyterLab
-
-1. Open [http://localhost:8888](http://localhost:8888) in your browser.
-2. Use the provided notebooks or create your own to interact with Spark and Hudi tables.
-3. Run Spark jobs that write/read Hudi datasets on MinIO S3.
-
-## 🧹 Cleaning Up
-
-To remove all containers and volumes:
-```sh
-docker-compose down -v
+```
+lakehouse/
+├── docker-compose.yml
+├── Dockerfile.spark          # Spark + Hudi + Jupyter
+├── Dockerfile.hive           # Hive Metastore
+├── build.sh                  # Build all images
+├── run_spark_hudi.sh         # Start/stop/restart
+├── conf/
+│   ├── spark/                # Spark defaults
+│   ├── hive/                 # Hive site config
+│   ├── hudi/                 # Hudi config
+│   └── trino/                # Trino catalog + JVM config
+├── notebooks/                # Jupyter notebooks (mounted)
+│   ├── utils.py              # Shared helpers (Spark session, column rename)
+│   ├── 01-mock-data.ipynb    # Static reference data loading
+│   └── 02-streaming.ipynb    # CDC streaming: Kafka → Bronze Hudi
+└── data/                     # Persistent data (docker-volumes, gitignored)
 ```
 
-## 📖 Notes
+## Notebooks
 
-* The Hive Metastore here uses **Derby DB** for simplicity. For production-like setups, replace Derby with **MySQL/Postgres**.
-* Spark jars include **Hudi Spark bundle** + **Hadoop AWS jars** to enable MinIO S3 and Hudi integration.
+### 01-mock-data.ipynb
+Loads static reference data (VN30, industry, company, news, etc.) from JSON files in MinIO `raw/` bucket into Hudi COW tables in the `warehouse` database.
 
-## 🛎️ Support
+### 02-streaming.ipynb
+Contains a reusable `start_bronze_stream()` function that:
+1. Reads Avro-serialized Debezium CDC events from Kafka
+2. Deserializes using Apicurio Schema Registry
+3. Flattens the Debezium envelope (before/after based on CDC op)
+4. Writes to partitioned Hudi COW tables in the `bronze` database
 
-* Apache Hudi Website: https://hudi.apache.org/
-* Apache Hudi Github Repo: https://github.com/apache/hudi⁠
+Supports two-phase bootstrap: bulk load with `maxOffsetsPerTrigger`, then steady-state streaming.
 
-## 📚 Further Reading
+## Storage Layout
 
-[Spark Quick Start Guide](https://hudi.apache.org/docs/quick-start-guide/)
-[Python/Rust Quick Start Guide](https://hudi.apache.org/docs/python-rust-quick-start-guide)
-
-## 🤝 Contributing
-
-Please check out our [contribution guide](https://hudi.apache.org/contribute/how-to-contribute) to learn more about how to contribute.
-For code contributions, please refer to the [developer setup](https://hudi.apache.org/contribute/developer-setup).
+```
+MinIO
+├── raw/          # Source JSON files for reference data
+├── bronze/       # CDC streaming tables (Hudi COW, partitioned by _ingest_date)
+├── silver/       # Cleansed incremental tables (dbt-managed)
+├── gold/         # Aggregated business tables (dbt-managed)
+└── warehouse/    # Static reference tables
+```
