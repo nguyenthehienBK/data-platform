@@ -143,6 +143,11 @@ services:
   trino:
     image: trinodb/trino:latest
     container_name: trino
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
     depends_on:
       hive-metastore:
         condition: service_healthy # Waits for healthcheck to pass to success start spark thrift server

@@ -1,7 +1,8 @@
 {
-    "name": "postgres-connector",
+    "name": "source-connector-postgres",
     "config": {
       "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "tasks.max": "1",
       "database.hostname": "postgres",
       "database.port": "5432",
       "database.user": "postgres",
@@ -11,10 +12,10 @@
       "plugin.name": "pgoutput",
       "slot.name": "postgres_slot",
       "publication.name": "postgres_pub",
-      "database.history.kafka.bootstrap.servers": "broker:9092",
-      "database.history.kafka.topic": "schema-changes",
+      "schema.history.internal.kafka.bootstrap.servers": "broker:29092",
+      "schema.history.internal.kafka.topic": "schema-changes.CRBT",
       "topic.prefix": "cdc_postgres",
       "snapshot.mode": "initial",
-      "table.include.list": "CRBT.charge_log,CRBT.sub_collection_log,CRBT.substate_log"
+      "table.include.list": "public.orders,CRBT.sub_collection_log,CRBT.charge_log,CRBT.substate_log"
     }
   }
