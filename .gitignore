@@ -230,3 +230,6 @@ draft*
 
 # Agentic coding
 /.claude
+
+# Hudi CLI *.jar
+lakehouse/packaging/*.jar
