@@ -8,14 +8,14 @@ This is an on-premise data platform with the following components:
 
 ```
 ┌─────────────────┐     ┌─────────────────────────────┐     ┌─────────────────┐
-│   Ingestion     │────▶│        Lakehouse             │────▶│   Consumption   │
-│   (Debezium)    │     │  Spark/Hudi/MinIO + Trino    │     │   (dbt)         │
+│   Ingestion     │────▶│        Lakehouse            │────▶│   Consumption   │
+│   (Debezium)    │     │  Spark/Hudi/MinIO + Trino   │     │   (dbt)         │
 └─────────────────┘     └─────────────────────────────┘     └─────────────────┘
         │                       │                       │
         ▼                       ▼                       ▼
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   Streaming     │     │   Governance    │     │   Orchestration │
-│   (Kafka)       │     │   (OpenMetadata) │     │   (Airflow)     │
+│   (Kafka)       │     │   (OpenMetadata)│     │   (Airflow)     │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
@@ -30,10 +30,11 @@ This is an on-premise data platform with the following components:
 
 ### 1. Lakehouse (`/lakehouse`)
 Primary data storage, processing, and query engine.
-- **Services:** Spark-Hudi, MinIO, Hive Metastore (PostgreSQL-backed), Trino, mc (MinIO init)
+- **Services:** Spark-Hudi, MinIO, Hive Metastore ×3 (HA, PostgreSQL-backed), Trino, mc (MinIO init)
 - **JupyterLab:** http://localhost:8888 (notebooks mounted from `notebooks/`)
 - **Spark UI:** http://localhost:4040
 - **MinIO Console:** http://localhost:9001 (admin/password)
+- **Hive Metastore:** ports 19083, 29083, 39083 (3 instances behind `hive-metastore-1/2/3`)
 - **Trino:** http://localhost:28080
 
 ### 2. Stream (`/stream`)

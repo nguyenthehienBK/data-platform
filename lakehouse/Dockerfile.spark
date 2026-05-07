@@ -49,8 +49,8 @@ RUN apt-get update && \
     ln -sf /usr/bin/python3 /usr/bin/python && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY notebooks/ $NOTEBOOK_HOME/
-COPY conf/spark/ $SPARK_HOME/conf/
+# COPY notebooks/ $NOTEBOOK_HOME/
+# COPY conf/spark/ $SPARK_HOME/conf/
 COPY script/spark_entrypoint.sh $SPARK_HOME/entrypoint.sh
 RUN chmod +x /opt/spark/entrypoint.sh
 

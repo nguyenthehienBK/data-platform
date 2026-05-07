@@ -6,15 +6,15 @@ On-premise data platform built with open-source components.
 
 ```
 ┌─────────────────┐     ┌─────────────────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Source DB      │────▶│   Streaming                  │────▶│   Lakehouse     │────▶│   Consumption   │
-│   (PostgreSQL)   │     │   Debezium → Kafka (Avro)    │     │   Spark/Hudi    │     │   dbt + Airflow │
+│   Source DB     │────▶│   Streaming                 │────▶│   Lakehouse     │────▶│   Consumption   │
+│   (PostgreSQL)  │     │   Debezium → Kafka (Avro)   │     │   Spark/Hudi    │     │   dbt + Airflow │
 └─────────────────┘     └─────────────────────────────┘     └─────────────────┘     └─────────────────┘
                                                                      │
                                                                     Trino
                                                                      │
                                                               ┌─────────────────┐     ┌─────────────────┐
-                                                              │   Agent          │     │   Governance    │
-                                                              │   MCP Trino      │     │   OpenMetadata  │
+                                                              │   Agent         │     │   Governance    │
+                                                              │   MCP Trino     │     │   OpenMetadata  │
                                                               └─────────────────┘     └─────────────────┘
 ```
 
@@ -88,7 +88,9 @@ docker compose up --build -d
 | | Spark Thrift | 10000 | JDBC/ODBC |
 | | MinIO API | 9000 | S3-compatible |
 | | MinIO Console | 9001 | http://localhost:9001 (admin/password) |
-| | Hive Metastore | 9083 | Thrift |
+| | Hive Metastore 1 | 19083 | Thrift (HA ×3) |
+| | Hive Metastore 2 | 29083 | Thrift (HA ×3) |
+| | Hive Metastore 3 | 39083 | Thrift (HA ×3) |
 | | Trino | 28080 | http://localhost:28080 |
 | **Streaming** | Kafka | 9092 | Broker (KRaft mode) |
 | | Kafka UI | 9090 | http://localhost:9090 |
